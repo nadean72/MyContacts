@@ -1,5 +1,7 @@
 package com.example.mycontacts;
 
+import com.example.mycontacts.R;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -18,7 +20,7 @@ public class ContactList extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_contact_list);
         String[] values = new String[] { "John", "Sue", "Frankfurt", "Germany" };
         String[] cats = new String[] { "Cat1", "Cat2", "Cat3", "Cat4", "Cat5", "Edit" };
