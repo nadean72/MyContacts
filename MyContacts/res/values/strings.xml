@@ -7,5 +7,6 @@
     <string name="title_activity_contact_view">ContactView</string>
     <string name="title_activity_edit_categories">EditCategories</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="menu_add_contact">Add Contact</string>
 
 </resources>

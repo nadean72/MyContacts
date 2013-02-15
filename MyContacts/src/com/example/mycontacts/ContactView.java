@@ -4,10 +4,12 @@ import com.example.mycontacts.R;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.database.Cursor;
 import android.view.Menu;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class ContactView extends Activity {
 
@@ -22,6 +24,21 @@ public class ContactView extends Activity {
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(catAdapter);
        
+        long id = getIntent().getLongExtra("ID", 0);
+        DatabaseConnector databaseConnector = new DatabaseConnector(this);
+        
+        databaseConnector.open();
+        Cursor cursor = databaseConnector.getOneContact(id);
+        cursor.moveToFirst();
+        int nameIndex = cursor.getColumnIndex("name");
+        
+        //Cursor cursor = databaseConnector.getAllCategories();
+        
+        TextView name = (TextView) findViewById(R.id.contactName);
+        name.setText(cursor.getString(nameIndex));
+        //name.setText(cursor.getCount() + "");
+        
+        databaseConnector.close();
 	}
 
 	@Override

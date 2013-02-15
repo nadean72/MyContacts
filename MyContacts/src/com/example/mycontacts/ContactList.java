@@ -5,7 +5,9 @@ import com.example.mycontacts.R;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -19,6 +21,24 @@ public class ContactList extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        DatabaseConnector databaseConnector = new DatabaseConnector(this);
+        
+        databaseConnector.open();
+        Cursor categories = databaseConnector.getAllCategories();
+        if (categories.getCount() == 0){
+        	databaseConnector.insertCategory(0, "Category1");
+        	databaseConnector.insertCategory(1, "Category2");
+        	databaseConnector.insertCategory(2, "Category3");
+        	databaseConnector.insertCategory(3, "Category4");
+        	databaseConnector.insertCategory(4, "Category5");
+        	
+        }
+        //add a person
+        //databaseConnector.insertRow("Charlie", "123 Street St.", "920-123-4567", "920-987-6543", "email@email.com", "Hi", 2);
+        
+        databaseConnector.close();
+        		
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_contact_list);
@@ -56,7 +76,18 @@ public class ContactList extends Activity {
 		});
     }
     
-    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+    	if (item.getItemId() == R.id.menu_add_contact){
+    		Intent intent = new Intent(getApplicationContext(), ContactView.class);
+    		DatabaseConnector database = new DatabaseConnector(this);
+    		long id = database.insertContact("Name", "Address", "Cell", "Alternate Cell", "Email", "Comments", 0);
+    		intent.putExtra("ID", id);
+    		startActivity(intent);
+    		return true;
+    	}else
+    		return super.onOptionsItemSelected(item);
+    }
 
     
     @Override
