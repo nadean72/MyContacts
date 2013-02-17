@@ -8,5 +8,7 @@
     <string name="title_activity_edit_categories">EditCategories</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="menu_add_contact">Add Contact</string>
+    <string name="menu_delete_contact">Delete Contact</string>
+    <string name="menu_save_contact">Save Contact</string>
 
 </resources>

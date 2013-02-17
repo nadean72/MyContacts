@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.database.Cursor;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -13,33 +14,88 @@ import android.widget.TextView;
 
 public class ContactView extends Activity {
 
+	private long contactId;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_contact_view);
+	}
+	
+	protected void onResume(){
+		super.onResume();
         String[] cats = new String[] { "Cat1", "Cat2", "Cat3", "Cat4", "Cat5"};
         Spinner spinner = (Spinner) findViewById(R.id.contactCat);
         ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, cats);
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(catAdapter);
-       
-        long id = getIntent().getLongExtra("ID", 0);
+        contactId = getIntent().getLongExtra("ID", 0);
         DatabaseConnector databaseConnector = new DatabaseConnector(this);
         
         databaseConnector.open();
-        Cursor cursor = databaseConnector.getOneContact(id);
+        Cursor cursor = databaseConnector.getOneContact(contactId);
         cursor.moveToFirst();
-        int nameIndex = cursor.getColumnIndex("name");
+        int nameIdx = cursor.getColumnIndex("name");
+        int numIdx = cursor.getColumnIndex("cell");
+        int altNumIdx = cursor.getColumnIndex("altcell");
+        int addrIdx = cursor.getColumnIndex("address");
+        int emailIdx = cursor.getColumnIndex("email");
+        int commIdx = cursor.getColumnIndex("comments");
         
-        //Cursor cursor = databaseConnector.getAllCategories();
         
         TextView name = (TextView) findViewById(R.id.contactName);
-        name.setText(cursor.getString(nameIndex));
-        //name.setText(cursor.getCount() + "");
+        TextView number = (TextView) findViewById(R.id.primNumber);
+        TextView altNumber = (TextView) findViewById(R.id.secNumber);
+        TextView addr = (TextView) findViewById(R.id.contactAddr);
+        TextView email = (TextView) findViewById(R.id.contactEmail);
+        TextView comments = (TextView) findViewById(R.id.contactComments);
         
+        name.setText(cursor.getString(nameIdx));
+        number.setText(cursor.getString(numIdx));
+        altNumber.setText(cursor.getString(altNumIdx));
+        addr.setText(cursor.getString(addrIdx));
+        email.setText(cursor.getString(emailIdx));
+        comments.setText(cursor.getString(commIdx));
+        
+        cursor.close();
         databaseConnector.close();
+		
 	}
+	
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+    	if (item.getItemId() == R.id.menu_delete_contact){
+    		DatabaseConnector database = new DatabaseConnector(this);
+    		database.deleteContact((int)contactId);
+    		database.close();
+    		this.finish();
+    		return true;
+    	}else if (item.getItemId() == R.id.menu_save_contact){
+    		DatabaseConnector database = new DatabaseConnector(this);
+            TextView name = (TextView) findViewById(R.id.contactName);
+            TextView number = (TextView) findViewById(R.id.primNumber);
+            TextView altNumber = (TextView) findViewById(R.id.secNumber);
+            TextView addr = (TextView) findViewById(R.id.contactAddr);
+            TextView email = (TextView) findViewById(R.id.contactEmail);
+            TextView comments = (TextView) findViewById(R.id.contactComments);
+            Spinner category = (Spinner) findViewById(R.id.contactCat);
+            
+            database.updateContact(
+            		(int)contactId, 
+            		name.getText().toString(), 
+            		addr.getText().toString(), 
+            		number.getText().toString(), 
+            		altNumber.getText().toString(), 
+            		email.getText().toString(), 
+            		comments.getText().toString(), 
+            		category.getSelectedItemPosition());
+            database.close();
+            
+    		return true;
+    	}else
+    		return super.onOptionsItemSelected(item);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
