@@ -41,9 +41,7 @@ public class ContactList extends Activity {
         	databaseConnector.insertCategory(4, "Category5");
         	
         }
-        //add a person
-        //databaseConnector.insertContact("Charlie", "123 Street St.", "920-123-4567", "920-987-6543", "email@email.com", "Hi", 2);
-        
+        categories.close();
         databaseConnector.close();
         		
 
@@ -54,32 +52,41 @@ public class ContactList extends Activity {
     
     protected void onResume(){
     	super.onResume();
-
         populateContactList();
-        //String[] values = new String[] { "John", "Sue", "Frankfurt", "Germany" };
-        String[] cats = new String[] { "Cat1", "Cat2", "Cat3", "Cat4", "Cat5", "Edit" };
-        //ListView list = (ListView) findViewById(R.id.listView1);
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
-        //list.setAdapter(adapter);
-        
+        populateCategorySpinner();
+    }
+    
+    protected void populateCategorySpinner(){
+    	ArrayList<String> catArr = new ArrayList<String>();
+    	catArr.add("All");
         Spinner spinner = (Spinner) findViewById(R.id.categorySpinner);
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, cats);
+    	DatabaseConnector db = new DatabaseConnector(this);
+    	db.open();
+        Cursor categories = db.getAllCategories();
+        categories.moveToFirst();
+        int nameIdx = categories.getColumnIndex("name");
+        for(int i = 0; i < 5; i++){
+        	catArr.add(categories.getString(nameIdx));
+        	categories.moveToNext();
+        }
+        catArr.add("Edit");
+
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, catArr.toArray(new String[catArr.size()]));
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(catAdapter);
-        /*list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        	@Override
-        	public void onItemClick(AdapterView parent, View child, int pos, long id){
-        		Intent intent = new Intent(getApplicationContext(), ContactView.class);
-        		startActivity(intent);
-        	}
-		});*/
+        
+        categories.close();
+        db.close();
+        
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
         	@Override
         	public void onItemSelected(AdapterView parent, View child, int pos, long id){
-        		if(parent.getSelectedItemPosition() == 5){
+        		if(parent.getSelectedItemPosition() == 6){
         			parent.setSelection(0);
         			Intent intent = new Intent(getApplicationContext(), EditCategories.class);
         			startActivity(intent);
+        		}else{
+        			populateContactList();
         		}
         	}
         	
@@ -88,12 +95,13 @@ public class ContactList extends Activity {
         		
         	}
 		});
+    	
     }
     
-    
-    public void populateContactList(){
+    protected void populateContactList(){
     	contactNames = new ArrayList<String>();
     	contactIds = new ArrayList<Long>();
+        Spinner catSpinner = (Spinner) findViewById(R.id.categorySpinner);
     	DatabaseConnector db = new DatabaseConnector(this);
     	db.open();
     	Cursor contacts = db.getAllContacts();
@@ -104,10 +112,11 @@ public class ContactList extends Activity {
 	            
 	            int nameIndex = contacts.getColumnIndex("name");
 	            int idIndex = contacts.getColumnIndex("_id");
-	            
-	            
-	            contactNames.add(contacts.getString(nameIndex));
-	            contactIds.add(Long.parseLong(contacts.getString(idIndex)));
+	            int catIndex = contacts.getColumnIndex("category");
+	            if(catSpinner.getSelectedItemPosition() == 0 || catSpinner.getSelectedItemPosition() - 1 == contacts.getInt(catIndex)){
+		            contactNames.add(contacts.getString(nameIndex));
+		            contactIds.add(Long.parseLong(contacts.getString(idIndex)));
+	            }
 	            contacts.moveToNext();
 	    		if(contacts.getPosition() == contacts.getCount())
 	    			pastEnd = true;

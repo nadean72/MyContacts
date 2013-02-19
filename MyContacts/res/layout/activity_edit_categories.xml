@@ -49,22 +49,15 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:text="Cancel" />
-
-        <Button
             android:id="@+id/okButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/cancelButton"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:text="Save" />
+            android:text="Save" 
+            android:onClick="saveButton"	/>
 
     </RelativeLayout>
 

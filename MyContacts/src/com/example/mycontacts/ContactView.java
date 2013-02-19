@@ -1,5 +1,7 @@
 package com.example.mycontacts;
 
+import java.util.ArrayList;
+
 import com.example.mycontacts.R;
 
 import android.os.Bundle;
@@ -42,6 +44,8 @@ public class ContactView extends Activity {
         int addrIdx = cursor.getColumnIndex("address");
         int emailIdx = cursor.getColumnIndex("email");
         int commIdx = cursor.getColumnIndex("comments");
+        int catIdx = cursor.getColumnIndex("category");
+        
         
         
         TextView name = (TextView) findViewById(R.id.contactName);
@@ -50,6 +54,8 @@ public class ContactView extends Activity {
         TextView addr = (TextView) findViewById(R.id.contactAddr);
         TextView email = (TextView) findViewById(R.id.contactEmail);
         TextView comments = (TextView) findViewById(R.id.contactComments);
+        populateCategorySpinner();
+        Spinner category = (Spinner) findViewById(R.id.contactCat);
         
         name.setText(cursor.getString(nameIdx));
         number.setText(cursor.getString(numIdx));
@@ -57,12 +63,34 @@ public class ContactView extends Activity {
         addr.setText(cursor.getString(addrIdx));
         email.setText(cursor.getString(emailIdx));
         comments.setText(cursor.getString(commIdx));
+        category.setSelection(cursor.getInt(catIdx));
         
         cursor.close();
         databaseConnector.close();
 		
 	}
-	
+
+    protected void populateCategorySpinner(){
+    	ArrayList<String> catArr = new ArrayList<String>();
+        Spinner spinner = (Spinner) findViewById(R.id.contactCat);
+    	DatabaseConnector db = new DatabaseConnector(this);
+    	db.open();
+        Cursor categories = db.getAllCategories();
+        categories.moveToFirst();
+        int nameIdx = categories.getColumnIndex("name");
+        for(int i = 0; i < 5; i++){
+        	catArr.add(categories.getString(nameIdx));
+        	categories.moveToNext();
+        }
+
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, catArr.toArray(new String[catArr.size()]));
+        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(catAdapter);
+        
+        categories.close();
+        db.close();
+    }
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
     	if (item.getItemId() == R.id.menu_delete_contact){

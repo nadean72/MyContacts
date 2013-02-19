@@ -75,6 +75,16 @@ public class DatabaseConnector {
 		database.update("Contacts", editRow, "_id=" + id, null);
 		close();
 	}
+
+	//modify category
+	public void updateCategory(int id, String name){
+		ContentValues editRow = new ContentValues();
+		editRow.put("name", name);
+		
+		open();
+		database.update("Categories", editRow, "_id=" + id, null);
+		close();
+	}
 	
 	//list of contacts
 	public Cursor getAllContacts(){
