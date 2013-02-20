@@ -15,26 +15,27 @@ public final class R {
     }
     public static final class id {
         public static final int LinearLayout1=0x7f080000;
-        public static final int cancelButton=0x7f080010;
-        public static final int categorySpinner=0x7f080001;
-        public static final int contactAddr=0x7f080006;
-        public static final int contactCat=0x7f080008;
-        public static final int contactComments=0x7f080009;
-        public static final int contactEmail=0x7f080007;
-        public static final int contactList=0x7f080002;
-        public static final int contactName=0x7f080003;
-        public static final int editCat1=0x7f08000a;
-        public static final int editCat2=0x7f08000b;
-        public static final int editCat3=0x7f08000c;
-        public static final int editCat4=0x7f08000d;
-        public static final int editCat5=0x7f08000e;
-        public static final int menu_add_contact=0x7f080011;
-        public static final int menu_delete_contact=0x7f080012;
-        public static final int menu_save_contact=0x7f080013;
-        public static final int menu_settings=0x7f080014;
-        public static final int okButton=0x7f08000f;
-        public static final int primNumber=0x7f080004;
-        public static final int secNumber=0x7f080005;
+        public static final int cancelButton=0x7f080011;
+        public static final int categorySpinner=0x7f080002;
+        public static final int contactAddr=0x7f080007;
+        public static final int contactCat=0x7f080009;
+        public static final int contactComments=0x7f08000a;
+        public static final int contactEmail=0x7f080008;
+        public static final int contactList=0x7f080003;
+        public static final int contactName=0x7f080004;
+        public static final int editCat1=0x7f08000b;
+        public static final int editCat2=0x7f08000c;
+        public static final int editCat3=0x7f08000d;
+        public static final int editCat4=0x7f08000e;
+        public static final int editCat5=0x7f08000f;
+        public static final int menu_add_contact=0x7f080012;
+        public static final int menu_delete_contact=0x7f080013;
+        public static final int menu_save_contact=0x7f080014;
+        public static final int menu_settings=0x7f080015;
+        public static final int okButton=0x7f080010;
+        public static final int primNumber=0x7f080005;
+        public static final int searchText=0x7f080001;
+        public static final int secNumber=0x7f080006;
     }
     public static final class integer {
         public static final int maxCommentHeight=0x7f040000;

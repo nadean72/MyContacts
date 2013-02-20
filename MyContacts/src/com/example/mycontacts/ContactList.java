@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,12 +19,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class ContactList extends Activity {
 
 	private ArrayList<String> contactNames;
 	private ArrayList<Long> contactIds;
 	
+    private CharSequence searchText = "";
     
 	
     @Override
@@ -43,10 +47,32 @@ public class ContactList extends Activity {
         }
         categories.close();
         databaseConnector.close();
-        		
-
+        
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_contact_list);
+        
+
+        TextView search = (TextView) findViewById(R.id.searchText);
+        search.addTextChangedListener(new TextWatcher(){
+        	@Override
+        	public void onTextChanged(CharSequence s, int start, int before, int out){
+        		//if(!s.equals("")){
+	        		searchText = s;
+	        		//Spinner spinner = (Spinner) findViewById(R.id.categorySpinner);
+	        		//spinner.setSelection(0);
+	        		populateContactList();
+        		//}
+        	}
+        	
+        	public void afterTextChanged(Editable s){
+        		
+        	}
+        	
+        	public void beforeTextChanged(CharSequence s, int start, int before, int out){
+        		
+        	}
+        });
+
         
     }
     
@@ -86,6 +112,9 @@ public class ContactList extends Activity {
         			Intent intent = new Intent(getApplicationContext(), EditCategories.class);
         			startActivity(intent);
         		}else{
+        			//searchText = "";
+        			//TextView search = (TextView) findViewById(R.id.searchText);
+        			//search.setText("");
         			populateContactList();
         		}
         	}
@@ -114,8 +143,10 @@ public class ContactList extends Activity {
 	            int idIndex = contacts.getColumnIndex("_id");
 	            int catIndex = contacts.getColumnIndex("category");
 	            if(catSpinner.getSelectedItemPosition() == 0 || catSpinner.getSelectedItemPosition() - 1 == contacts.getInt(catIndex)){
-		            contactNames.add(contacts.getString(nameIndex));
-		            contactIds.add(Long.parseLong(contacts.getString(idIndex)));
+		            if(contacts.getString(nameIndex).contains(searchText)){
+		            	contactNames.add(contacts.getString(nameIndex));
+		            	contactIds.add(Long.parseLong(contacts.getString(idIndex)));
+		            }
 	            }
 	            contacts.moveToNext();
 	    		if(contacts.getPosition() == contacts.getCount())
