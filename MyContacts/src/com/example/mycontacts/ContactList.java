@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.example.mycontacts.R;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -56,12 +56,8 @@ public class ContactList extends Activity {
         search.addTextChangedListener(new TextWatcher(){
         	@Override
         	public void onTextChanged(CharSequence s, int start, int before, int out){
-        		//if(!s.equals("")){
-	        		searchText = s;
-	        		//Spinner spinner = (Spinner) findViewById(R.id.categorySpinner);
-	        		//spinner.setSelection(0);
-	        		populateContactList();
-        		//}
+	        	searchText = s;
+	        	new PopulateContactListTask().execute((Object[]) null);
         	}
         	
         	public void afterTextChanged(Editable s){
@@ -78,7 +74,7 @@ public class ContactList extends Activity {
     
     protected void onResume(){
     	super.onResume();
-        populateContactList();
+        new PopulateContactListTask().execute((Object[]) null);
         populateCategorySpinner();
     }
     
@@ -112,10 +108,7 @@ public class ContactList extends Activity {
         			Intent intent = new Intent(getApplicationContext(), EditCategories.class);
         			startActivity(intent);
         		}else{
-        			//searchText = "";
-        			//TextView search = (TextView) findViewById(R.id.searchText);
-        			//search.setText("");
-        			populateContactList();
+        	        new PopulateContactListTask().execute((Object[]) null);
         		}
         	}
         	
@@ -125,51 +118,6 @@ public class ContactList extends Activity {
         	}
 		});
     	
-    }
-    
-    protected void populateContactList(){
-    	contactNames = new ArrayList<String>();
-    	contactIds = new ArrayList<Long>();
-        Spinner catSpinner = (Spinner) findViewById(R.id.categorySpinner);
-    	DatabaseConnector db = new DatabaseConnector(this);
-    	db.open();
-    	Cursor contacts = db.getAllContacts();
-	    if(contacts.getCount() > 0){
-	    	contacts.moveToFirst();
-	    	boolean pastEnd = false;
-	    	do{
-	            
-	            int nameIndex = contacts.getColumnIndex("name");
-	            int idIndex = contacts.getColumnIndex("_id");
-	            int catIndex = contacts.getColumnIndex("category");
-	            if(catSpinner.getSelectedItemPosition() == 0 || catSpinner.getSelectedItemPosition() - 1 == contacts.getInt(catIndex)){
-		            if(contacts.getString(nameIndex).contains(searchText)){
-		            	contactNames.add(contacts.getString(nameIndex));
-		            	contactIds.add(Long.parseLong(contacts.getString(idIndex)));
-		            }
-	            }
-	            contacts.moveToNext();
-	    		if(contacts.getPosition() == contacts.getCount())
-	    			pastEnd = true;
-	    	}while(!pastEnd);
-	        ListView list = (ListView) findViewById(R.id.contactList);
-	        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, contactNames.toArray(new String[contactNames.size()]));
-	        list.setAdapter(adapter);
-	        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-	        	@Override
-	        	public void onItemClick(AdapterView parent, View child, int pos, long id){
-	        		System.out.println(id);
-	        		Intent intent = new Intent(getApplicationContext(), ContactView.class);
-	        		intent.putExtra("ID", contactIds.get((int)id));
-	        		startActivity(intent);
-	        	}
-			});
-	    }else{
-	    	ListView list = (ListView) findViewById(R.id.contactList);
-	    	list.setAdapter(null);
-	    }
-	    contacts.close();
-    	db.close();
     }
     
     @Override
@@ -191,6 +139,62 @@ public class ContactList extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_contact_list, menu);
         return true;
+    }
+
+    //Different Thread
+    private class PopulateContactListTask extends AsyncTask<Object, Object, Cursor>{
+    	protected DatabaseConnector db;
+    	
+    	@Override
+    	protected Cursor doInBackground(Object... params){
+	    	db = new DatabaseConnector(ContactList.this);
+	    	db.open();
+	    	Cursor contacts = db.getAllContacts();
+	    	return contacts;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Cursor contacts){
+	    	contactNames = new ArrayList<String>();
+	    	contactIds = new ArrayList<Long>();
+	        Spinner catSpinner = (Spinner) findViewById(R.id.categorySpinner);
+		    if(contacts.getCount() > 0){
+		    	contacts.moveToFirst();
+		    	boolean pastEnd = false;
+		    	do{
+		            
+		            int nameIndex = contacts.getColumnIndex("name");
+		            int idIndex = contacts.getColumnIndex("_id");
+		            int catIndex = contacts.getColumnIndex("category");
+		            if(catSpinner.getSelectedItemPosition() == 0 || catSpinner.getSelectedItemPosition() - 1 == contacts.getInt(catIndex)){
+			            if(contacts.getString(nameIndex).contains(searchText)){
+			            	contactNames.add(contacts.getString(nameIndex));
+			            	contactIds.add(Long.parseLong(contacts.getString(idIndex)));
+			            }
+		            }
+		            contacts.moveToNext();
+		    		if(contacts.getPosition() == contacts.getCount())
+		    			pastEnd = true;
+		    	}while(!pastEnd);
+		        ListView list = (ListView) findViewById(R.id.contactList);
+		        ArrayAdapter<String> adapter = new ArrayAdapter<String>(ContactList.this, android.R.layout.simple_list_item_1, android.R.id.text1, contactNames.toArray(new String[contactNames.size()]));
+		        list.setAdapter(adapter);
+		        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		        	@Override
+		        	public void onItemClick(AdapterView parent, View child, int pos, long id){
+		        		System.out.println(id);
+		        		Intent intent = new Intent(getApplicationContext(), ContactView.class);
+		        		intent.putExtra("ID", contactIds.get((int)id));
+		        		startActivity(intent);
+		        	}
+				});
+		    }else{
+		    	ListView list = (ListView) findViewById(R.id.contactList);
+		    	list.setAdapter(null);
+		    }
+		    contacts.close();
+		    db.close();
+	    }
     }
     
 }
