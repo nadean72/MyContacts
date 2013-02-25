@@ -6,6 +6,8 @@ import com.example.mycontacts.R;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -94,10 +96,23 @@ public class ContactView extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
     	if (item.getItemId() == R.id.menu_delete_contact){
-    		DatabaseConnector database = new DatabaseConnector(this);
-    		database.deleteContact((int)contactId);
-    		database.close();
-    		this.finish();
+    		TextView name = (TextView)findViewById(R.id.contactName);
+    		
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        	builder
+        	.setTitle("Delete Contact")
+        	.setMessage("Are you sure you want to delete " + name.getText() + "?")
+        	.setIcon(android.R.drawable.ic_dialog_alert)
+        	.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        	    public void onClick(DialogInterface dialog, int which) {	
+            		DatabaseConnector database = new DatabaseConnector(ContactView.this);
+            		database.deleteContact((int)contactId);
+            		database.close();
+            		ContactView.this.finish();
+        	    }
+        	})
+        	.setNegativeButton("No", null)		
+        	.show();
     		return true;
     	}else if (item.getItemId() == R.id.menu_save_contact){
     		DatabaseConnector database = new DatabaseConnector(this);
